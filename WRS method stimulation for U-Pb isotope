@@ -159,7 +159,7 @@ if __name__ == '__main__':
     # stimulate 75 spots  analysis
     idxx=[]
     for i in range(75):
-        wrs=Wrs(output_result,num=1,Wrs_L=True,k=500,a=a,b=b)
+        wrs=Wrs(output_result,num=1,Wrs_L=False,k=1,a=a,b=b)
         result,idx=wrs.wrs()
         idxx.append(idx)
     selected_onebyone=[]
