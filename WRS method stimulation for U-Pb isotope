@@ -1,0 +1,171 @@
+import numpy as np
+import math
+from matplotlib import pyplot as plt
+import random
+from math import *
+def Cal_age(age,f206,errox,erroy,S206):
+    #erro=erro*random.random()
+    #f206=f206*random.random()
+    a=exp(0.000000000155125*age*1000000)-1
+    b=exp(0.00000000098485*age*1000000)-1
+    c=exp(0.000000000049475*age*1000000)-1
+    P382=1/137.88*(b/a)
+    Q8=18.700-a*9.735
+    R8=15.628-b*(9.735/137.88)            
+    S8=38.630-c*36.837
+    
+    S207_206=(P382+((R8/Q8)-P382)*f206)*(1+(random.random()-0.5)*errox/100)
+    S238_206=((1/a)*(1-f206))*(1+(random.random()-0.5)*erroy/100)
+    #S208_232=c*(1-f206)
+    S207=S206*S207_206
+    S238=S206*S238_206
+    return S238_206,errox,S207_206,erroy,S206,S207,S238
+    #return S238_206*(1+erro*(random.random()-0.5)/100),erro*random.random(),S207_206*(1+erro*(random.random()-0.5)/100),erro*random.random(),(log(1/S238_206+1)//0.000000000155125/1000000-age)/age*100
+class Wrs:
+    def __init__(self,data,num=5,w=None,k=1000,Wrs_L=False,a=1,b=0):
+        self.data=data
+        self.num=num
+        self.Wrs_L=Wrs_L
+        self.w=np.ones(data.shape[1])/data.shape[1]
+        self.a=a
+        self.b=b
+        self.bosstrap=k
+        if str(type(w))=='<class \'list\'>':
+            self.weights=np.array(w)
+        else:
+            self.weights=self.getWeight()
+    def getWeight(self):
+        if self.Wrs_L==True:
+            weights = []
+            for item in self.data:
+                weights.append(abs(item[1]-self.a*item[0]-self.b) / math.sqrt(2))
+            return np.array(weights)
+        else:
+            return np.ones(data.shape[0])/data.shape[0]
+
+
+    def wrsA(self):
+        """ Weighted random sampling """
+        items_len = len(self.data)
+        U = np.random.uniform(0, 1, items_len)  # 均值分布
+        keys = U ** (1 / self.weights)  # 生成keys
+        return np.argsort(-keys)[:self.num]  # 降序排列
+    def wrs(self):
+        idx = None
+        all_idx = []
+        #取样范围0-1000
+        for i in range(self.bosstrap):
+            idx = self.wrsA()
+            all_idx.extend(list(idx))
+
+        pure_all_idx = sorted(list(set(all_idx)))
+        result = []
+        for i in pure_all_idx:
+            result.append([i, all_idx.count(i)])
+
+        pure_all_idx = np.array(pure_all_idx)
+        result = np.array(result)
+        return result,idx
+    def plotwrs(self,data,result,weights,idx):
+        plt.figure(figsize=(14, 10))
+        #ax = plt.subplot(211)
+        #rects = ax.bar(result[:, 0], result[:, 1])
+        #plt.xticks(result[:, 0], result[:, 0])
+        #ax.set_title('sampling bar (weight, num of sampling)')
+        def autolabel(rects, weights):
+            """Attach a text label above each bar in *rects*, displaying its height."""
+            for rect, weight in zip(rects, weights):
+                height = rect.get_height()
+                ax.annotate('({},{})'.format(round(weight, 2), height),
+                            xy=(rect.get_x() + rect.get_width() / 2, height),
+                            xytext=(0, 3),  # 3 points vertical offset
+                            textcoords="offset points",
+                            ha='center', va='bottom')
+
+        #autolabel(rects, weights)
+
+        ax = plt.subplot(111)
+        ax.set_title('WRS')
+        plt.scatter(data[:, 0], data[:, 2], c='orange', label='unselected')
+        plt.legend()
+        x = np.arange(data[:, 0].min(),data[:, 0].max(), (data[:, 0].max()-data[:, 0].min())/(len(data[:, 0])+2))
+
+        y = self.a*x + self.b
+        plt.plot(x, y)
+        plt.annotate(r'$y={}x+{}$'.format(self.a,self.b), xy=(data[:, 0].max()*0.8, 1.1*(self.b+self.a*(data[:, 0].max()*0.8))))
+        for i in range(len(data)):
+            if i in idx:
+                plt.scatter(data[i, 0], data[i, 2], c='black',label='selected')
+        
+        plt.show()
+        
+
+if __name__ == '__main__':
+    
+    result_iso=[]
+    agen=100
+    output_result=[]
+    #f206:Proportion of common 
+    f206=(np.random.randint(0,100,100)/100).tolist()
+    
+    
+    
+    #206Pb>30  erro=15%;  30>206Pb>=10, erro=10%;206Pb<10, erro=3%
+    high=np.random.poisson(3,1000).tolist()
+    middle=np.random.poisson(10,1000).tolist()
+    low=np.random.poisson(15,1000).tolist()
+    
+    #x:1-100  y:1-100   grid 
+
+    num=[]
+    for i in range(1,101):   
+        
+        for j in range(1,101):
+            if j<10:
+                errox=np.random.choice(low)+abs((random.random()-0.5))
+                erroy=np.random.choice(low)+abs((random.random()-0.5))
+            elif 10<=j<30:
+                errox=np.random.choice(middle)+abs((random.random()-0.5))
+                erroy=np.random.choice(middle)+abs((random.random()-0.5))
+            else:
+                errox=np.random.choice(high)+abs((random.random()-0.5))
+                erroy=np.random.choice(high)+abs((random.random()-0.5))
+            #print(errox,erroy)
+            ff206=np.random.choice(f206)
+            stimulate=Cal_age(100,ff206,errox,erroy,j)
+            out=[stimulate[0],stimulate[1],stimulate[2],stimulate[3],stimulate[4],stimulate[5],stimulate[6],i,j]
+            output_result.append(out)
+            num.append(stimulate[4])
+            result_iso.append([stimulate[0],stimulate[2]])       
+        
+    data=np.array(result_iso)
+  
+    output_result=np.array(output_result)
+    np.savetxt('100Ma stimulation.csv',output_result,delimiter=',')
+    #Set the sampling weights according to the 100 Ma concordance line function
+    
+    a=-0.01242
+    b=0.8424
+   
+    #sampling
+    
+    
+    wrs=Wrs(output_result,num=10,Wrs_L=True,k=500,a=a,b=b)
+    result,idx=wrs.wrs()
+    
+    weights=wrs.getWeight()
+    # plotting
+    wrs.plotwrs(output_result,result,weights,idx)
+    # stimulate 75 spots  analysis
+    idxx=[]
+    for i in range(75):
+        wrs=Wrs(output_result,num=1,Wrs_L=True,k=500,a=a,b=b)
+        result,idx=wrs.wrs()
+        idxx.append(idx)
+    selected_onebyone=[]
+    for i in range(len(data)):
+            if i in idxx:
+                selected_onebyone.append(output_result[i])
+    selected_onebyone=np.array(selected_onebyone)
+    np.savetxt('Selected_onebyone data.csv',selected_onebyone,delimiter=',')
+    
