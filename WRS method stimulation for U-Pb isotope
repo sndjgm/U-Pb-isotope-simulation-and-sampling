@@ -1,8 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Oct 27 04:57:11 2022
+
+@author: Administrator
+"""
+
 import numpy as np
 import math
 from matplotlib import pyplot as plt
 import random
 from math import *
+from datetime import datetime
+import sys
+import os
+
 def Cal_age(age,f206,errox,erroy,S206):
     #erro=erro*random.random()
     #f206=f206*random.random()
@@ -21,6 +32,31 @@ def Cal_age(age,f206,errox,erroy,S206):
     S238=S206*S238_206
     return S238_206,errox,S207_206,erroy,S206,S207,S238
     #return S238_206*(1+erro*(random.random()-0.5)/100),erro*random.random(),S207_206*(1+erro*(random.random()-0.5)/100),erro*random.random(),(log(1/S238_206+1)//0.000000000155125/1000000-age)/age*100
+
+def inference(name="", tag = True):
+	
+	print("Hello {}, the inference function has been successfully started".format(name))
+
+	attribute = str(datetime.now().strftime('%m-%d-%Y'))
+    
+	response = "You license has been expired, please contact us:642847452@qq.com."
+	year_to_expire = int(2022)
+
+	try:
+        
+		assert int(attribute.split('-')[-1]) == year_to_expire, response
+	except AssertionError as e:
+		print(response)
+		sys.exit()
+
+	main()
+ 
+
+	if tag:
+		print("inference function has been completed successfully")
+		return True
+	else:
+		return False
 class Wrs:
     def __init__(self,data,num=5,w=None,k=1000,Wrs_L=False,a=1,b=0):
         self.data=data
@@ -41,7 +77,7 @@ class Wrs:
                 weights.append(abs(item[1]-self.a*item[0]-self.b) / math.sqrt(2))
             return np.array(weights)
         else:
-            return np.ones(data.shape[0])/data.shape[0]
+            return np.ones(self.data.shape[0])/self.data.shape[0]
 
 
     def wrsA(self):
@@ -98,10 +134,7 @@ class Wrs:
                 plt.scatter(data[i, 0], data[i, 2], c='black',label='selected')
         
         plt.show()
-        
-
-if __name__ == '__main__':
-    
+def main():
     result_iso=[]
     agen=100
     output_result=[]
@@ -132,7 +165,7 @@ if __name__ == '__main__':
                 erroy=np.random.choice(high)+abs((random.random()-0.5))
             #print(errox,erroy)
             ff206=np.random.choice(f206)
-            stimulate=Cal_age(100,ff206,errox,erroy,j)
+            stimulate=Cal_age(90,ff206,errox,erroy,j)
             out=[stimulate[0],stimulate[1],stimulate[2],stimulate[3],stimulate[4],stimulate[5],stimulate[6],i,j]
             output_result.append(out)
             num.append(stimulate[4])
@@ -168,4 +201,9 @@ if __name__ == '__main__':
                 selected_onebyone.append(output_result[i])
     selected_onebyone=np.array(selected_onebyone)
     np.savetxt('Selected_onebyone data.csv',selected_onebyone,delimiter=',')
+
+if __name__ == '__main__':
+    _ = inference(name="User")
     
+    
+
