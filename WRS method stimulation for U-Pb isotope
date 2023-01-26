@@ -83,13 +83,13 @@ class Wrs:
     def wrsA(self):
         """ Weighted random sampling """
         items_len = len(self.data)
-        U = np.random.uniform(0, 1, items_len)  # 均值分布
-        keys = U ** (1 / self.weights)  # 生成keys
-        return np.argsort(-keys)[:self.num]  # 降序排列
+        U = np.random.uniform(0, 1, items_len)  
+        keys = U ** (1 / self.weights)  
+        return np.argsort(-keys)[:self.num]  
     def wrs(self):
         idx = None
         all_idx = []
-        #取样范围0-1000
+        
         for i in range(self.bosstrap):
             idx = self.wrsA()
             all_idx.extend(list(idx))
@@ -143,7 +143,7 @@ def main():
     
     
     
-    #206Pb>30  erro=15%;  30>206Pb>=10, erro=10%;206Pb<10, erro=3%
+    #206Pb>30000  erro=25%;  3000>206Pb>=1000, erro=10%;206Pb<100, erro=3%
     high=np.random.poisson(3,1000).tolist()
     middle=np.random.poisson(10,1000).tolist()
     low=np.random.poisson(15,1000).tolist()
@@ -157,15 +157,18 @@ def main():
             if j<10:
                 errox=np.random.choice(low)+abs((random.random()-0.5))
                 erroy=np.random.choice(low)+abs((random.random()-0.5))
+		Pb206c=j*10
             elif 10<=j<30:
                 errox=np.random.choice(middle)+abs((random.random()-0.5))
                 erroy=np.random.choice(middle)+abs((random.random()-0.5))
+		Pb206c=j*100
             else:
                 errox=np.random.choice(high)+abs((random.random()-0.5))
                 erroy=np.random.choice(high)+abs((random.random()-0.5))
+		Pb206c=j*1000
             #print(errox,erroy)
             ff206=np.random.choice(f206)
-            stimulate=Cal_age(90,ff206,errox,erroy,j)
+            stimulate=Cal_age(90,ff206,errox,erroy,Pb206c)
             out=[stimulate[0],stimulate[1],stimulate[2],stimulate[3],stimulate[4],stimulate[5],stimulate[6],i,j]
             output_result.append(out)
             num.append(stimulate[4])
