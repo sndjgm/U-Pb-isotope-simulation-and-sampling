@@ -132,17 +132,17 @@ def main():
         
         for j in range(1,101):
             if j<10:
+                Pb206c=j*10
                 errox=np.random.choice(low)+abs((random.random()-0.5))
                 erroy=np.random.choice(low)+abs((random.random()-0.5))
-		Pb206c=j*10
             elif 10<=j<30:
                 errox=np.random.choice(middle)+abs((random.random()-0.5))
                 erroy=np.random.choice(middle)+abs((random.random()-0.5))
-		Pb206c=j*100
+                Pb206c=j*100
             else:
                 errox=np.random.choice(high)+abs((random.random()-0.5))
                 erroy=np.random.choice(high)+abs((random.random()-0.5))
-		Pb206c=j*1000
+                Pb206c=j*1000
             #print(errox,erroy)
             ff206=np.random.choice(f206)
             stimulate=Cal_age(90,ff206,errox,erroy,Pb206c)
